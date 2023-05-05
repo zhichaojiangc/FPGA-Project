@@ -1,7 +1,7 @@
 # **ECE 385 Final Project: *Battle City***
 
 ## Introduction:
-For our final project, we implemented a revised version of the *Battle City* video game on the MAX10 FPGA. In this project, we utilized the C programming language to create a NIOS II CPU to control the system and handle low-performance tasks such as I/O and user interfaces. We also used System Verilog to design the peripherals and components and manipulate high-performance tasks such as tank movement and color palettes. The USB interface was used with the SPI protocol to connect to the board and initialize VGA signals to display the video on the VGA display. Additionally, the USB interface provided power to the keyboard, which was used to control the motion of the tanks and transfer data.
+For our final project, we implemented a revised version of the *Battle City* video game on the MAX10 FPGA. In this project, we utilized the C programming language to create a NIOS II CPU to control the system and handle low-performance tasks such as I/O and user interfaces. We also used System Verilog to design the peripherals and components and manipulate high-performance tasks such as tank movement and color palettes. The USB interface was used with the SPI protocol to connect to the board and initialize VGA signals to display the video on the VGA display. Additionally, the USB interface provided power to the keyboard, which was used to control the motion of the tanks.
 
 ## Instructions for Compiling the Game:
 To compile the Battle City video game on the FPGA board, please follow these steps:
