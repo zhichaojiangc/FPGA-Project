@@ -1,0 +1,106 @@
+module color_mapper2 (
+    input [9:0] Tank1X, Tank1Y, Tank2X, Tank2Y, DrawX, DrawY, 
+    input [9:0] Tank_size, Bullet1X, Bullet1Y, Bullet2X, Bullet2Y, Bullet_size,
+    input [1:0] Tank1Direction, Tank2Direction, // Add Tank2Direction input
+    input logic vga_clk, blank,
+    output logic [7:0] Red, Green, Blue
+);
+
+    // Add new wires for Tank2 and Bullet2
+    logic Tank1_on, Tank2_on, Bullet1_on, Bullet2_on;
+    
+    // Your existing code for DistX, DistY, Size, and Bullet_on_proc
+
+    // Add Bullet2_on_proc with new DistX and DistY
+    int DistX2, DistY2;
+    assign DistX2 = DrawX - Bullet2X;
+    assign DistY2 = DrawY - Bullet2Y;
+
+    always_comb
+    begin:Bullet2_on_proc
+        if ( (DistX2*DistX2 + DistY2*DistY2) <= (Size * Size) ) 
+            Bullet2_on = 1'b1;
+        else 
+            Bullet2_on = 1'b0;
+    end
+
+    // Your existing code for rom_address_m, rom_q_m, palette_red_m, palette_green_m, palette_blue_m
+
+    // Your existing code for rom_address_t, rom_q_t, palette_red_t, palette_green_t, palette_blue_t
+
+    // Add new rom_address_t2 for Tank2
+    logic [10:0] rom_address_t2;
+
+    // Modify rom_address_t2 assignment based on Tank2Direction
+    assign rom_address_t2 = 
+        (Tank2Direction == DIR_UP) ? 
+            (((DrawX - (Tank2X - Tank_size)) * 36) / (2 * Tank_size)) + ((((DrawY - (Tank2Y - Tank_size)) * 36) / (2 * Tank_size)) * 36) :
+        (Tank2Direction == DIR_LEFT) ? 
+            (((DrawY - (Tank2Y - Tank_size)) * 36) / (2 * Tank_size)) + ((((DrawX - (Tank2X - Tank_size)) * 36) / (2 * Tank_size)) * 36) :
+        (Tank2Direction == DIR_DOWN) ? 
+            (((DrawX - (Tank2X - Tank_size)) * 36) / (2 * Tank_size)) + (((((Tank_size * 2) - (DrawY - (Tank2Y - Tank_size))) * 36) / (2 * Tank_size)) * 36) :
+            (((DrawY - (Tank2Y - Tank_size)) * 36) / (2 * Tank_size)) + (((((Tank_size * 2) - (DrawX - (Tank2X - Tank_size))) * 36) / (2 * Tank_size)) * 36);
+
+    // Your existing code for Tank_on_proc
+
+    // Add new Tank2_on_proc
+    always_comb
+    begin:Tank2_on_proc
+        if ((DrawX >= Tank2X - Tank_size) &&
+            (DrawX <= Tank2X + Tank_size) &&
+            (DrawY >= Tank2Y - Tanksize) &&
+				(DrawY <= Tank2Y + Tank_size))
+					Tank2_on = 1'b1;
+			else
+				Tank2_on = 1'b0;
+	end
+// Add new logic for Tank2 and Bullet2
+logic [3:0] rom_q_t2;
+logic [3:0] palette_red_t2, palette_green_t2, palette_blue_t2;
+
+// Instantiate tank2_rom and tank2_palette
+tank1_rom tank2_rom (
+    .clock   (vga_clk),
+    .address (rom_address_t2),
+    .q       (rom_q_t2)
+);
+
+tank1_palette tank2_palette (
+    .index (rom_q_t2),
+    .red   (palette_red_t2),
+    .green (palette_green_t2),
+    .blue  (palette_blue_t2)
+);
+
+// Update the color assignment logic
+always_ff @ (posedge vga_clk) begin
+    Red <= 8'h00;
+    Green <= 8'h00;
+    Blue <= 8'h00;
+    if (blank) begin
+        if (Tank1_on == 1'b1) begin 
+            Red <= palette_red_t;
+            Green <= palette_green_t;
+            Blue <= palette_blue_t;
+        end else if (Tank2_on == 1'b1) begin 
+            Red <= palette_red_t2;
+            Green <= palette_green_t2;
+            Blue <= palette_blue_t2;
+        end else if (Bullet1_on == 1'b1) begin
+            Red <= 8'hff;
+            Green <= 8'h55;
+            Blue <= 8'h00;
+        end else if (Bullet2_on == 1'b1) begin
+            Red <= 8'h00;
+            Green <= 8'hff;
+            Blue <= 8'h00;
+        end else begin
+            Red <= palette_red_m;
+            Green <= palette_green_m;
+            Blue <= palette_blue_m;
+        end
+    end
+end
+
+// Your existing code for map1_rom, map1_palette, tank1_rom, and tank1_palette
+

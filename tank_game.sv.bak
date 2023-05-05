@@ -1,0 +1,36 @@
+module ball_game ( input Reset, frame_clk,
+                   input [7:0] keycode,
+                   output [9:0] Tank1X, Tank1Y, Tank1S,
+                   output [9:0] Bullet1X, Bullet1Y, Bullet1S,
+                   output reg [1:0] Tank1Direction,
+                   output [9:0] Tank2X, Tank2Y, Tank2S,
+                   output [9:0] Bullet2X, Bullet2Y, Bullet2S,
+                   output reg [1:0] Tank2Direction
+                 );
+
+    // Instantiate the first ball module
+    ball tank1 ( .Reset(Reset), .frame_clk(frame_clk), .keycode(keycode),
+                 .TankX(Tank1X), .TankY(Tank1Y), .TankS(Tank1S),
+                 .BulletX(Bullet1X), .BulletY(Bullet1Y), .BulletS(Bullet1S),
+                 .TankDirection(Tank1Direction)
+               );
+
+    // Instantiate the second ball module
+    ball tank2 ( .Reset(Reset), .frame_clk(frame_clk), .keycode(keycode),
+                 .TankX(Tank2X), .TankY(Tank2Y), .TankS(Tank2S),
+                 .BulletX(Bullet2X), .BulletY(Bullet2Y), .BulletS(Bullet2S),
+                 .TankDirection(Tank2Direction)
+               );
+
+    // Update the ball module to accept an additional set of keycodes
+    // For Tank 1, use the original keycodes: W (0x1A), A (0x04), S (0x16), D (0x07), Q (0x14)
+    // For Tank 2, use new keycodes: I (0x0C), J (0x0D), K (0x0E), L (0x0F), U (0x15)
+
+    assign keycode = (keycode == 8'h1A) ? 8'h0C : // W -> I
+                     (keycode == 8'h04) ? 8'h0D : // A -> J
+                     (keycode == 8'h16) ? 8'h0E : // S -> K
+                     (keycode == 8'h07) ? 8'h0F : // D -> L
+                     (keycode == 8'h14) ? 8'h15 : // Q -> U
+                     keycode;
+
+endmodule
